@@ -1,0 +1,8 @@
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\bin\Release\ImgP.exe.config
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\bin\Release\ImgP.exe
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\bin\Release\ImgP.pdb
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.Form1.resources
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.Properties.Resources.resources
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.csproj.GenerateResource.Cache
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.exe
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.pdb

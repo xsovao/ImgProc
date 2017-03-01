@@ -1,0 +1,12 @@
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\bin\Debug\ImgP.exe.config
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\bin\Debug\ImgP.exe
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\bin\Debug\ImgP.pdb
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\obj\Debug\ImgP.csprojResolveAssemblyReference.cache
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\obj\Debug\ImgP.Form1.resources
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\obj\Debug\ImgP.Properties.Resources.resources
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\obj\Debug\ImgP.csproj.GenerateResource.Cache
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\obj\Debug\ImgP.exe
+c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\obj\Debug\ImgP.pdb
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\bin\Debug\ImgP.exe.config
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.exe
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.pdb
