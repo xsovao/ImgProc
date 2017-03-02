@@ -22,6 +22,7 @@ namespace ImgP
         int[] histEq = new int[256];
         int min;
         int max;
+        bool loaded = false;
 
         public Form1()
         {
@@ -44,6 +45,7 @@ namespace ImgP
                 hist = new int[256];
                 histEq = new int[256];
                 histcum = new float[256];
+                loaded = true;
                 img_hist.BackColor = Color.White;
                 calcHist();
                 drawHist(hist);
@@ -118,6 +120,7 @@ namespace ImgP
             gfx.Dispose();
         }
 
+
         private void setminmax()
         {
             for (int i = 0; i < 256; i++) if (hist[i] != 0) max = i;
@@ -126,30 +129,228 @@ namespace ImgP
             maxlabel.Text = max.ToString();
         }
 
-        private void revertToolStripMenuItem_Click(object sender, EventArgs e)
+        private int[,] convolve(double[,] cm, int rad) {
+            int[,] r = new int[gray.Width, gray.Height];
+            double v;
+            for (int x = rad; x < gray.Width - rad; x++)
+                for (int y = rad; y < gray.Height - rad; y++)
+                {
+                    v = 0;
+                    for (int i = 0; i <= 2*rad; i++)
+                        for (int j = 0; j <= 2*rad; j++)
+                            if(cm[i,j]!=0)
+                            v += (cm[i, j]*gdata[x+i-rad,y+j-rad]);
+                    r[x, y] = (int)(Math.Min(255,Math.Max(0,v)));
+                }
+                    return r;
+        }
+        private void originalToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            gray = grayscale(bmp);
-            redraw();
+            if (loaded)
+            {
+                gray = grayscale(bmp);
+                redraw();
+            }
         }
 
+        #region HIST_OPS
         private void fSHSToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            for (int x = 0; x < gray.Width; x++)
-                for (int y = 0; y < gray.Height; y++)
-                {
-                    gdata[x, y] = Math.Max(0,Math.Min(255,(int)(255.0F / (max - min) * (gdata[x, y] - min))));
-                }
-            redraw();
+            if (loaded)
+            {
+                for (int x = 0; x < gray.Width; x++)
+                    for (int y = 0; y < gray.Height; y++)
+                    {
+                        gdata[x, y] = Math.Max(0, Math.Min(255, (int)(255.0F / (max - min) * (gdata[x, y] - min))));
+                    }
+                redraw();
+            }
         }
 
         private void equalizeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            for (int x = 0; x < gray.Width; x++)
-                for (int y = 0; y < gray.Height; y++)
-                {
+            if (loaded)
+            {
+                for (int x = 0; x < gray.Width; x++)
+                    for (int y = 0; y < gray.Height; y++)
+                    {
                         gdata[x, y] = (int)histEq[gdata[x, y]];
-                }
-            redraw();
+                    }
+                redraw();
+            }
         }
+        #endregion
+        #region BLUR
+
+
+        private void uniform3x3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { 1.0/9, 1.0/9, 1.0/9 },
+                  { 1.0/9, 1.0/9, 1.0/9 },
+                  { 1.0/9, 1.0/9, 1.0/9 }
+                   };
+                gdata = convolve(cm, 1);
+                redraw();
+            }
+        }
+             private void diamond13ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double v = 1.0 / 13;
+                double[,] cm = new double[,] {
+                  { 0, 0, v,0,0 },
+                  { 0, v, v,v,0 },
+                  { v, v,v,v,v },
+                  { 0,v,v,v,0 },
+                  { 0,0,v,0,0 } };
+                gdata = convolve(cm, 2);
+                redraw();
+            }
+        }
+        #endregion
+        #region SHARPEN
+
+        private void x3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { 0, -1, 0 },
+                  { -1, 5, -1 },
+                  { 0, -1, 0 }
+                   };
+                gdata = convolve(cm, 1);
+                redraw();
+            }
+        }
+        private void x5ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double a = -1.0/8, b = 2.0/8, c = 1.0; 
+                double[,] cm = new double[,] {
+                  { a, a, a,a,a },
+                  { a, b, b,b,a },
+                  { a, b,c,b,a },
+                  { a, b, b,b,a },
+                 { a, a, a,a,a }};
+                gdata = convolve(cm, 2);
+                redraw();
+            }
+        }
+        #endregion
+        #region EDGE DETECT
+        private void horizontalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { 0, 0, 0,0,0 },
+                  { 0, 0, 0,0,0 },
+                  { -1, -1,4,-1,-1 },
+                  { 0,0,0,0,0 },
+                  { 0,0,0,0,0 } };
+                gdata = convolve(cm, 2);
+                redraw();
+            }
+        }
+
+        private void diagonalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { -1, 0, 0,0,0 },
+                  { 0, -2, 0,0,0 },
+                  { 0, 0,6,0,0 },
+                  { 0,0,0,-2,0 },
+                  { 0,0,0,0,-1 } };
+                gdata = convolve(cm, 2);
+                redraw();
+            }
+        }
+        private void laplace4ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { 0, 1, 0 },
+                  { 1, -4, 1 },
+                  { 0, 1, 0 }
+                   };
+                gdata = convolve(cm, 1);
+                redraw();
+            }
+        }
+        private void laplace8ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { 1, 1, 1 },
+                  { 1, -8, 1 },
+                  { 1, 1, 1 }
+                   };
+                gdata = convolve(cm, 1);
+                redraw();
+            }
+        }
+
+        private void sobelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { 1, 2, 1 },
+                  { 0,0, 0 },
+                  { -1, 2, -1 }
+                   };
+                gdata = convolve(cm, 1);
+                cm = new double[,] {
+                  { 1, 0, -1 },
+                  { 2,0, -2 },
+                  { 1, 0, -1 }
+                   };
+                gdata = convolve(cm, 1);
+                redraw();
+            }
+        }
+
+
+        #endregion
+        #region EMBOSS
+        private void x3ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { -2, -1, 0 },
+                  { -1, 1, 1 },
+                  { 0, 1, 2 }
+                   };
+                gdata = convolve(cm, 1);
+                redraw();
+            }
+        }
+
+        private void x5ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (loaded)
+            {
+                double[,] cm = new double[,] {
+                  { -1,-1, -1,-1,0 },
+                  { -1, -1, -1,0,1 },
+                  { -1, -1,0,1,1 },
+                  { -1,0,1,1,1 },
+                  { 0,1,1,1,1 } };
+                gdata = convolve(cm, 2);
+                redraw();
+            }
+        }
+        #endregion
     }
 }
