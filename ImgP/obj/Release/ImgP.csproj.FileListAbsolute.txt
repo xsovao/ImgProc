@@ -6,3 +6,11 @@ C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.P
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.csproj.GenerateResource.Cache
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.exe
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgP\ImgP\obj\Release\ImgP.pdb
+D:\sova\SO\imgp\ImgP\bin\Release\ImgP.exe.config
+D:\sova\SO\imgp\ImgP\obj\Release\ImgP.exe
+D:\sova\SO\imgp\ImgP\obj\Release\ImgP.pdb
+D:\sova\SO\imgp\ImgP\bin\Release\ImgP.exe
+D:\sova\SO\imgp\ImgP\bin\Release\ImgP.pdb
+D:\sova\SO\imgp\ImgP\obj\Release\ImgP.Form1.resources
+D:\sova\SO\imgp\ImgP\obj\Release\ImgP.Properties.Resources.resources
+D:\sova\SO\imgp\ImgP\obj\Release\ImgP.csproj.GenerateResource.Cache
