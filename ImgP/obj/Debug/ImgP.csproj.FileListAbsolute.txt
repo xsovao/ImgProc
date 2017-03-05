@@ -19,3 +19,9 @@ D:\sova\SO\imgp\ImgP\obj\Debug\ImgP.csprojResolveAssemblyReference.cache
 D:\sova\SO\imgp\ImgP\obj\Debug\ImgP.Form1.resources
 D:\sova\SO\imgp\ImgP\obj\Debug\ImgP.Properties.Resources.resources
 D:\sova\SO\imgp\ImgP\obj\Debug\ImgP.csproj.GenerateResource.Cache
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\bin\Debug\ImgP.exe
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\bin\Debug\ImgP.pdb
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.csprojResolveAssemblyReference.cache
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.Form1.resources
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.Properties.Resources.resources
+C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.csproj.GenerateResource.Cache

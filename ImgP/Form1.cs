@@ -113,7 +113,7 @@ namespace ImgP
             gfx.Clear(Color.White);
             for (int i = 0; i < 256; i++)
             {
-                gfx.FillRectangle(Brushes.Black, 1 + i, 256 - hist[i] * scale, 1, hist[i] * scale);
+                gfx.FillRectangle(Brushes.Black, i, 256 - hist[i] * scale, 1, hist[i] * scale);
             }
             img_hist.Image = histimg;
             img_hist.Refresh();
@@ -131,16 +131,25 @@ namespace ImgP
 
         private int[,] convolve(double[,] cm, int rad) {
             int[,] r = new int[gray.Width, gray.Height];
+            int xx, yy;
             double v;
-            for (int x = rad; x < gray.Width - rad; x++)
-                for (int y = rad; y < gray.Height - rad; y++)
+            for (int x = 0; x < gray.Width; x++)
+                for (int y = 0; y < gray.Height; y++)
                 {
+                    
                     v = 0;
-                    for (int i = 0; i <= 2*rad; i++)
-                        for (int j = 0; j <= 2*rad; j++)
-                            if(cm[i,j]!=0)
-                            v += (cm[i, j]*gdata[x+i-rad,y+j-rad]);
-                    r[x, y] = (int)(Math.Min(255,Math.Max(0,v)));
+                    for (int i = 0; i <= 2 * rad; i++)
+                        for (int j = 0; j <= 2 * rad; j++)
+                        {
+                            xx = x + i - rad;
+                            yy = y + j - rad;
+                            if (xx < 0 || xx > gray.Width-1) xx = x - i + rad;
+                            if (yy < 0 || yy > gray.Height-1) yy = y - j + rad;
+
+                            if (cm[i, j] != 0)
+                                v += (cm[i, j] * gdata[xx, yy]);
+                            r[x, y] = (int)(Math.Min(255, Math.Max(0, v)));
+                        }
                 }
                     return r;
         }
