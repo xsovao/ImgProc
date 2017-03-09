@@ -89,18 +89,28 @@ namespace ImgP
 
         private void calcHist()
         {
-            for (int i = 0; i < 256; i++) hist[i] = 0;
+            for (int i = 0; i < 256; i++) hist[i] = 0;       //vypocet hist
             for (int x = 0; x < gray.Width; x++)
                 for (int y = 0; y < gray.Height; y++) {
                     hist[gdata[x, y]]++;
                 }
+
             int norm = gray.Width * gray.Height;
             int sum = 0;
-            for (int i = 0; i < 256; i++) {
+
+            for (int i = 0; i < 256; i++) {     //vypocet kumul.hist
                 sum += hist[i];
-                histcum[i] = (float)sum / norm;
+                histcum[i] = (float)sum;
                     }
-            for (int i = 0; i < 256; i++) histEq[i] = (int)(255 * histcum[i] + 0.5F);
+
+            lastop = "Cumulative";    //predtym, ako sa znormuje, zapis kumulativny hist do histCumulative.txt
+            writeHist(histcum);
+
+            for (int i = 0; i < 256; i++)          //normuj
+            {
+                histcum[i] = (float)histcum[i] / norm;
+            }
+                for (int i = 0; i < 256; i++) histEq[i] = (int)(255 * histcum[i] + 0.5F);
                 setminmax();
         }
 
@@ -127,7 +137,12 @@ namespace ImgP
             for (int i = 0; i < 256; i++) file.WriteLine(Convert.ToString(i)+" : "+Convert.ToString(hist[i]));
             file.Close();
         }
-
+        private void writeHist(float[] hist)
+        {
+            System.IO.StreamWriter file = new System.IO.StreamWriter("hist" + lastop + ".txt");
+            for (int i = 0; i < 256; i++) file.WriteLine(Convert.ToString(i) + " : " + Convert.ToString(hist[i]));
+            file.Close();
+        }
 
         private void setminmax()
         {
@@ -389,8 +404,12 @@ namespace ImgP
                 lastop = "Emboss5x5";
             }
         }
+
         #endregion
 
-       
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
