@@ -23,7 +23,7 @@ namespace ImgP
         int min;
         int max;
         bool loaded = false;
-        string lastop;
+
         public Form1()
         {
             InitializeComponent();
@@ -49,7 +49,6 @@ namespace ImgP
                 img_hist.BackColor = Color.White;
                 calcHist();
                 drawHist(hist);
-                lastop = "Original";
             }
             img_main.Select();
             ofd.Dispose();
@@ -121,13 +120,6 @@ namespace ImgP
             gfx.Dispose();
         }
 
-        private void writeHist(int[] hist)
-        {
-            System.IO.StreamWriter file = new System.IO.StreamWriter("hist"+lastop+".txt");
-            for (int i = 0; i < 256; i++) file.WriteLine(Convert.ToString(i)+" : "+Convert.ToString(hist[i]));
-            file.Close();
-        }
-
 
         private void setminmax()
         {
@@ -167,7 +159,6 @@ namespace ImgP
             {
                 gray = grayscale(bmp);
                 redraw();
-                lastop = "Original";
             }
         }
 
@@ -182,8 +173,6 @@ namespace ImgP
                         gdata[x, y] = Math.Max(0, Math.Min(255, (int)(255.0F / (max - min) * (gdata[x, y] - min))));
                     }
                 redraw();
-                lastop = "FHSH";
-                writeHist(hist);
             }
         }
 
@@ -197,14 +186,7 @@ namespace ImgP
                         gdata[x, y] = (int)histEq[gdata[x, y]];
                     }
                 redraw();
-                lastop = "Equalize";
-                writeHist(hist);
             }
-        }
-
-        private void writetxtToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            writeHist(hist);
         }
         #endregion
         #region BLUR
@@ -221,7 +203,6 @@ namespace ImgP
                    };
                 gdata = convolve(cm, 1);
                 redraw();
-                lastop = "Blur3x3";
             }
         }
              private void diamond13ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -237,7 +218,6 @@ namespace ImgP
                   { 0,0,v,0,0 } };
                 gdata = convolve(cm, 2);
                 redraw();
-                lastop = "Blur5x5";
             }
         }
         #endregion
@@ -254,7 +234,6 @@ namespace ImgP
                    };
                 gdata = convolve(cm, 1);
                 redraw();
-                lastop = "Shapen3x3";
             }
         }
         private void x5ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -270,7 +249,6 @@ namespace ImgP
                  { a, a, a,a,a }};
                 gdata = convolve(cm, 2);
                 redraw();
-                lastop = "Shapen5x5";
             }
         }
         #endregion
@@ -287,7 +265,6 @@ namespace ImgP
                   { 0,0,0,0,0 } };
                 gdata = convolve(cm, 2);
                 redraw();
-                lastop = "EdgeHorizontal";
             }
         }
 
@@ -303,7 +280,6 @@ namespace ImgP
                   { 0,0,0,0,-1 } };
                 gdata = convolve(cm, 2);
                 redraw();
-                lastop = "EdgeDiagonal";
             }
         }
         private void laplace4ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -317,7 +293,6 @@ namespace ImgP
                    };
                 gdata = convolve(cm, 1);
                 redraw();
-                lastop = "EdgeLaplace4";
             }
         }
         private void laplace8ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -331,7 +306,6 @@ namespace ImgP
                    };
                 gdata = convolve(cm, 1);
                 redraw();
-                lastop = "EdgeLaplace8";
             }
         }
 
@@ -352,7 +326,6 @@ namespace ImgP
                    };
                 gdata = convolve(cm, 1);
                 redraw();
-                lastop = "EdgeSobel";
             }
         }
 
@@ -370,7 +343,6 @@ namespace ImgP
                    };
                 gdata = convolve(cm, 1);
                 redraw();
-                lastop = "Emboss3x3";
             }
         }
 
@@ -386,11 +358,8 @@ namespace ImgP
                   { 0,1,1,1,1 } };
                 gdata = convolve(cm, 2);
                 redraw();
-                lastop = "Emboss5x5";
             }
         }
         #endregion
-
-       
     }
 }
