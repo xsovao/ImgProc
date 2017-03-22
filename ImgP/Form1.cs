@@ -16,14 +16,18 @@ namespace ImgP
     {
         Bitmap bmp;
         Bitmap gray;
+
         int[,] gdata;
         int[] hist = new int[256];
         float[] histcum = new float[256];
         int[] histEq = new int[256];
         int min;
         int max;
+        double hh, tt;
+        int stps;
         bool loaded = false;
         string lastop;
+        string fname;
         public Form1()
         {
             InitializeComponent();
@@ -39,6 +43,7 @@ namespace ImgP
                 if(bmp!=null)bmp.Dispose();
                 if (gray != null) gray.Dispose();
                 bmp = new Bitmap(ofd.FileName.ToString());
+                fname = ofd.FileName.ToString();
                 gray = grayscale(bmp);
                 img_main.Image = gray;
                 img_main.Refresh();
@@ -68,6 +73,19 @@ namespace ImgP
             drawHist(hist);
             img_main.Image = gray;
             img_main.Refresh();
+        }
+
+        private Bitmap BmpFromData(int [,] data)
+        {
+            Bitmap bmp = new Bitmap(gray.Width,gray.Height);
+            int v;
+            for (int x = 0; x < gray.Width; x++)
+                for (int y = 0; y < gray.Height; y++)
+                {
+                    v = gdata[x, y];
+                    bmp.SetPixel(x, y, Color.FromArgb(v, v, v));
+                }
+            return bmp;
         }
 
         private Bitmap grayscale(Bitmap original)
@@ -311,11 +329,11 @@ namespace ImgP
             if (loaded)
             {
                 double[,] cm = new double[,] {
-                  { -1, 0, 0,0,0 },
-                  { 0, -2, 0,0,0 },
+                  { 0, 0, 0,0,-1 },
+                  { 0, 0, 0,-2,0 },
                   { 0, 0,6,0,0 },
-                  { 0,0,0,-2,0 },
-                  { 0,0,0,0,-1 } };
+                  { 0,-2,0,0,0 },
+                  { -1,0,0,0,0 } };
                 gdata = convolve(cm, 2);
                 redraw();
                 lastop = "EdgeDiagonal";
@@ -355,9 +373,9 @@ namespace ImgP
             if (loaded)
             {
                 double[,] cm = new double[,] {
-                  { 1, 2, 1 },
+                  { -1, -2, -1 },
                   { 0,0, 0 },
-                  { -1, -2, -1 }
+                  { 1, 2, 1 }
                    };
                 gdata = convolve(cm, 1);
                 cm = new double[,] {
@@ -407,9 +425,65 @@ namespace ImgP
 
         #endregion
 
+        void thermal(int steps, double t, double h)
+        {
+            //steps
+            //t time step
+            //h space step
+            int[,] gold = new int[gray.Width, gray.Height];
+
+            double left, right, up, down, kmp = t/(h*h);
+            int nx = gray.Width, ny = gray.Height;
+
+            for (int x = 0; x < gray.Width; x++)
+                for (int y = 0; y < gray.Height; y++)
+                {
+                    gold[x, y] = gdata[x, y];
+                }
+
+            for (int i = 0; i < steps; i++)
+            {
+
+                for (int x = 0; x < nx; x++)
+                    for (int y = 0; y < ny; y++)
+                    {
+                        if (x == 0) left = gold[x + 1, y];
+                        else left = gold[x - 1, y];
+                        if (y == 0) up = gold[x, y + 1];
+                        else up = gold[x, y - 1];
+                        if (x == nx-1) right = gold[x-1, y];
+                        else right = gold[x + 1, y];
+                        if (y == ny-1) down = gold[x, y - 1];
+                        else down = gold[x, y + 1];
+
+                      gdata[x,y] = (int)((1-4*kmp)+kmp * (left + right + up + down));
+                       gdata[x,y] = (int)(Math.Min(255, Math.Max(0, gdata[x,y])));
+                    }
+
+                gray = BmpFromData(gdata);
+                gray.Save(fname +"_step" + i + ".bmp");
+                img_main.Image = gray;
+                img_main.Refresh();
+
+                for (int x = 0; x < gray.Width; x++)
+                    for (int y = 0; y < gray.Height; y++)
+                    {
+                        gold[x, y] = gdata[x, y];
+                    }
+            }
+        }
+
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void calc_Click(object sender, EventArgs e)
+        {
+            stps = (int)numsteps.Value;
+            tt = (double)numt.Value;
+            hh = (double)numh.Value;
+            thermal(stps,tt,hh);
         }
     }
 }
