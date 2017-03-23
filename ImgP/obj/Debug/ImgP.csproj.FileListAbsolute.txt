@@ -10,3 +10,6 @@ c:\users\nero\documents\visual studio 2015\Projects\ImgP\ImgP\obj\Debug\ImgP.pdb
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\bin\Debug\ImgP.exe.config
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.exe
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.pdb
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\bin\Debug\ImgP.exe.config
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.exe
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.pdb
