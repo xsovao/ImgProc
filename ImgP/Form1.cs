@@ -17,7 +17,7 @@ namespace ImgP
         Bitmap bmp;
         Bitmap gray;
 
-        int[,] gdata;
+        double[,] gdata;
         int[] hist = new int[256];
         float[] histcum = new float[256];
         int[] histEq = new int[256];
@@ -66,7 +66,7 @@ namespace ImgP
             for (int x = 0; x < gray.Width; x++)
                 for (int y = 0; y < gray.Height; y++)
                 {
-                    v = gdata[x, y];
+                    v = (int)(Math.Min(255, Math.Max(0, gdata[x, y])));
                     gray.SetPixel(x,y,Color.FromArgb(v,v,v));
                 }
             calcHist();
@@ -75,14 +75,14 @@ namespace ImgP
             img_main.Refresh();
         }
 
-        private Bitmap BmpFromData(int [,] data)
+        private Bitmap BmpFromData(double [,] data)
         {
             Bitmap bmp = new Bitmap(gray.Width,gray.Height);
             int v;
             for (int x = 0; x < gray.Width; x++)
                 for (int y = 0; y < gray.Height; y++)
                 {
-                    v = gdata[x, y];
+                    v = (int)(Math.Min(255, Math.Max(0, gdata[x, y])));
                     bmp.SetPixel(x, y, Color.FromArgb(v, v, v));
                 }
             return bmp;
@@ -93,7 +93,7 @@ namespace ImgP
             Color c;
             int val;
             Bitmap g = new Bitmap(original.Width, original.Height);
-            gdata = new int[g.Width,g.Height];
+            gdata = new double[g.Width,g.Height];
             for (int x = 0; x < original.Width; x++)
                 for (int y = 0; y < original.Height; y++)
                 {
@@ -105,73 +105,8 @@ namespace ImgP
             return g;
         }
 
-        private void calcHist()
-        {
-            for (int i = 0; i < 256; i++) hist[i] = 0;       //vypocet hist
-            for (int x = 0; x < gray.Width; x++)
-                for (int y = 0; y < gray.Height; y++) {
-                    hist[gdata[x, y]]++;
-                }
-
-            int norm = gray.Width * gray.Height;
-            int sum = 0;
-
-            for (int i = 0; i < 256; i++) {     //vypocet kumul.hist
-                sum += hist[i];
-                histcum[i] = (float)sum;
-                    }
-
-            lastop = "Cumulative";    //predtym, ako sa znormuje, zapis kumulativny hist do histCumulative.txt
-            writeHist(histcum);
-
-            for (int i = 0; i < 256; i++)          //normuj
-            {
-                histcum[i] = (float)histcum[i] / norm;
-            }
-                for (int i = 0; i < 256; i++) histEq[i] = (int)(255 * histcum[i] + 0.5F);
-                setminmax();
-        }
-
-        private void drawHist(int[] hist) {
-            Bitmap histimg = new Bitmap(256, 256);
-            Graphics gfx = Graphics.FromImage(histimg);
-            float scale = 1.0F;
-            int maxval = 0;
-            for(int i=0; i<256; i++)if (hist[i] > maxval) maxval = hist[i];
-            scale = 256.0F/maxval;
-            gfx.Clear(Color.White);
-            for (int i = 0; i < 256; i++)
-            {
-                gfx.FillRectangle(Brushes.Black, i, 256 - hist[i] * scale, 1, hist[i] * scale);
-            }
-            img_hist.Image = histimg;
-            img_hist.Refresh();
-            gfx.Dispose();
-        }
-
-        private void writeHist(int[] hist)
-        {
-            System.IO.StreamWriter file = new System.IO.StreamWriter("hist"+lastop+".txt");
-            for (int i = 0; i < 256; i++) file.WriteLine(Convert.ToString(i)+" : "+Convert.ToString(hist[i]));
-            file.Close();
-        }
-        private void writeHist(float[] hist)
-        {
-            System.IO.StreamWriter file = new System.IO.StreamWriter("hist" + lastop + ".txt");
-            for (int i = 0; i < 256; i++) file.WriteLine(Convert.ToString(i) + " : " + Convert.ToString(hist[i]));
-            file.Close();
-        }
-
-        private void setminmax()
-        {
-            for (int i = 0; i < 256; i++) if (hist[i] != 0) max = i;
-            for (int i = 255; i >= 0; i--) if (hist[i] != 0) min = i;
-            minlabel.Text = min.ToString();
-            maxlabel.Text = max.ToString();
-        }
-
-        private int[,] convolve(double[,] cm, int rad) {
-            int[,] r = new int[gray.Width, gray.Height];
+        private double[,] convolve(double[,] cm, int rad) {
+            double[,] r = new double[gray.Width, gray.Height];
             int xx, yy;
             double v;
             for (int x = 0; x < gray.Width; x++)
@@ -189,7 +124,7 @@ namespace ImgP
 
                             if (cm[i, j] != 0)
                                 v += (cm[i, j] * gdata[xx, yy]);
-                            r[x, y] = (int)(Math.Min(255, Math.Max(0, v)));
+                            r[x, y] = (Math.Min(255, Math.Max(0, v)));
                         }
                 }
                     return r;
@@ -205,6 +140,74 @@ namespace ImgP
         }
 
         #region HIST_OPS
+        private void calcHist()
+        {
+            for (int i = 0; i < 256; i++) hist[i] = 0;       //vypocet hist
+            for (int x = 0; x < gray.Width; x++)
+                for (int y = 0; y < gray.Height; y++)
+                {
+                    hist[(int)gdata[x, y]]++;
+                }
+
+            int norm = gray.Width * gray.Height;
+            int sum = 0;
+
+            for (int i = 0; i < 256; i++)
+            {     //vypocet kumul.hist
+                sum += hist[i];
+                histcum[i] = (float)sum;
+            }
+
+            lastop = "Cumulative";    //predtym, ako sa znormuje, zapis kumulativny hist do histCumulative.txt
+            writeHist(histcum);
+
+            for (int i = 0; i < 256; i++)          //normuj
+            {
+                histcum[i] = (float)histcum[i] / norm;
+            }
+            for (int i = 0; i < 256; i++) histEq[i] = (int)(255 * histcum[i] + 0.5F);
+            setminmax();
+        }
+
+        private void drawHist(int[] hist)
+        {
+            Bitmap histimg = new Bitmap(256, 256);
+            Graphics gfx = Graphics.FromImage(histimg);
+            float scale = 1.0F;
+            int maxval = 0;
+            for (int i = 0; i < 256; i++) if (hist[i] > maxval) maxval = hist[i];
+            scale = 256.0F / maxval;
+            gfx.Clear(Color.White);
+            for (int i = 0; i < 256; i++)
+            {
+                gfx.FillRectangle(Brushes.Black, i, 256 - hist[i] * scale, 1, hist[i] * scale);
+            }
+            img_hist.Image = histimg;
+            img_hist.Refresh();
+            gfx.Dispose();
+        }
+
+        private void writeHist(int[] hist)
+        {
+            System.IO.StreamWriter file = new System.IO.StreamWriter("hist" + lastop + ".txt");
+            for (int i = 0; i < 256; i++) file.WriteLine(Convert.ToString(i) + " : " + Convert.ToString(hist[i]));
+            file.Close();
+        }
+        private void writeHist(float[] hist)
+        {
+            System.IO.StreamWriter file = new System.IO.StreamWriter("hist" + lastop + ".txt");
+            for (int i = 0; i < 256; i++) file.WriteLine(Convert.ToString(i) + " : " + Convert.ToString(hist[i]));
+            file.Close();
+        }
+
+        private void setminmax()
+        {
+            for (int i = 0; i < 256; i++) if (hist[i] != 0) max = i;
+            for (int i = 255; i >= 0; i--) if (hist[i] != 0) min = i;
+            minlabel.Text = min.ToString();
+            maxlabel.Text = max.ToString();
+        }
+
         private void fSHSToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (loaded)
@@ -227,7 +230,7 @@ namespace ImgP
                 for (int x = 0; x < gray.Width; x++)
                     for (int y = 0; y < gray.Height; y++)
                     {
-                        gdata[x, y] = (int)histEq[gdata[x, y]];
+                        gdata[x, y] = histEq[(int)gdata[x, y]];
                     }
                 redraw();
                 lastop = "Equalize";
@@ -425,16 +428,18 @@ namespace ImgP
 
         #endregion
 
-        void thermal(int steps, double t, double h)
+        #region NUM SOLVERS
+         void thermalExp(int steps, double t, double h)
         {
             //steps
             //t time step
             //h space step
-            int[,] gold = new int[gray.Width, gray.Height];
+            double[,] gold = new double[gray.Width, gray.Height];
 
             double left, right, up, down, kmp = t/(h*h);
             int nx = gray.Width, ny = gray.Height;
 
+           
             for (int x = 0; x < gray.Width; x++)
                 for (int y = 0; y < gray.Height; y++)
                 {
@@ -456,8 +461,8 @@ namespace ImgP
                         if (y == ny-1) down = gold[x, y - 1];
                         else down = gold[x, y + 1];
 
-                      gdata[x,y] = (int)((1-4*kmp)+kmp * (left + right + up + down));
-                       gdata[x,y] = (int)(Math.Min(255, Math.Max(0, gdata[x,y])));
+                      gdata[x,y] = ((1-4*kmp) * gdata[x,y] + kmp * (left + right + up + down));
+                       gdata[x,y] = (Math.Min(255, Math.Max(0, gdata[x,y])));
                     }
 
                 gray = BmpFromData(gdata);
@@ -473,9 +478,65 @@ namespace ImgP
             }
         }
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        void thermalImp(int steps, double t, double h, double tol, double omg,int iter)
         {
+            double res, rloc;
+            int i;
 
+            double[,] gold = new double[gray.Width, gray.Height];
+            double left, right, up, down, kmp = t / (h * h);
+            int nx = gray.Width, ny = gray.Height;
+            string vypis;            
+            for (int x = 0; x < gray.Width; x++)
+                for (int y = 0; y < gray.Height; y++)
+                {
+                    gold[x, y] = gdata[x, y];
+                }
+
+            System.IO.StreamWriter file = new System.IO.StreamWriter(fname + "_residuals.txt");
+
+            for(int k=0; k < steps; k++) {                
+            res = 1000;
+            i = 0;
+                while (i < iter && res > tol * tol)
+                {
+                    res = 0;
+
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+                            if (x == 0) left = gold[x + 1, y];
+                            else left = gold[x - 1, y];
+                            if (y == 0) up = gold[x, y + 1];
+                            else up = gold[x, y - 1];
+                            if (x == nx - 1) right = gold[x - 1, y];
+                            else right = gold[x + 1, y];
+                            if (y == ny - 1) down = gold[x, y - 1];
+                            else down = gold[x, y + 1];
+
+                            gdata[x, y] = (1 - omg * kmp) + omg * kmp * (left + right + up + down);
+
+                            rloc = (1 + 4 * (h * h)) * gdata[x, y] - (h * h) * (left + right + up + down) - gold[x, y];
+                            res += rloc * rloc;
+                        }
+                    res /= gray.Width * gray.Height;
+                    i++;
+                    vypis = "krok " + Convert.ToString(k) + " | iteracia " + Convert.ToString(i) + " : " + Convert.ToString(res);
+                    file.WriteLine(vypis);
+                    txtlog.Text = vypis;
+                }
+                gray = BmpFromData(gdata);
+                gray.Save(fname + "_step" + i + ".bmp");
+                img_main.Image = gray;
+                img_main.Refresh();
+
+                for (int x = 0; x < gray.Width; x++)
+                    for (int y = 0; y < gray.Height; y++)
+                    {
+                        gold[x, y] = gdata[x, y];
+                    }
+            }
+            file.Close();
         }
 
         private void calc_Click(object sender, EventArgs e)
@@ -483,7 +544,21 @@ namespace ImgP
             stps = (int)numsteps.Value;
             tt = (double)numt.Value;
             hh = (double)numh.Value;
-            thermal(stps,tt,hh);
+            thermalExp(stps, tt, hh);
         }
-    }
+        #endregion
+        private void button1_Click(object sender, EventArgs e)
+        {
+            stps = (int)numsteps.Value;
+            tt = (double)numt.Value;
+            hh = (double)numh.Value;
+
+            thermalImp(stps, tt, hh,(double)numtol.Value,(double)numomg.Value,(int)numiter.Value);
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+          }
 }

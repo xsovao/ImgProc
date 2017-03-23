@@ -25,3 +25,12 @@ C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.Form1.resources
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.Properties.Resources.resources
 C:\Users\Nero\Documents\Visual Studio 2015\Projects\ImgProc\ImgP\obj\Debug\ImgP.csproj.GenerateResource.Cache
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\bin\Debug\ImgP.exe.config
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.exe
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.pdb
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\bin\Debug\ImgP.exe
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\bin\Debug\ImgP.pdb
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.csprojResolveAssemblyReference.cache
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.Form1.resources
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.Properties.Resources.resources
+C:\Users\stdn08\Source\Repos\ImgProc\ImgP\obj\Debug\ImgP.csproj.GenerateResource.Cache
