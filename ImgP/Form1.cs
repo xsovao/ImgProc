@@ -480,19 +480,14 @@ namespace ImgP
 
         void thermalImp(int steps, double t, double h, double tol, double omg,int iter)
         {
-            double res, rloc;
+            double res, rloc,yy = 0;
             int i;
 
             double[,] gold = new double[gray.Width, gray.Height];
             double left, right, up, down, kmp = t / (h * h);
             int nx = gray.Width, ny = gray.Height;
             string vypis;            
-            for (int x = 0; x < gray.Width; x++)
-                for (int y = 0; y < gray.Height; y++)
-                {
-                    gold[x, y] = gdata[x, y];
-                }
-
+          
             System.IO.StreamWriter file = new System.IO.StreamWriter(fname + "_residuals.txt");
 
             for(int k=0; k < steps; k++) {                
@@ -501,29 +496,52 @@ namespace ImgP
                 while (i < iter && res > tol * tol)
                 {
                     res = 0;
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+                            gold[x, y] = gdata[x, y];
+                        }
 
                     for (int x = 0; x < nx; x++)
                         for (int y = 0; y < ny; y++)
                         {
-                            if (x == 0) left = gold[x + 1, y];
-                            else left = gold[x - 1, y];
-                            if (y == 0) up = gold[x, y + 1];
-                            else up = gold[x, y - 1];
-                            if (x == nx - 1) right = gold[x - 1, y];
-                            else right = gold[x + 1, y];
-                            if (y == ny - 1) down = gold[x, y - 1];
-                            else down = gold[x, y + 1];
+                            if (x == 0) left = gdata[x + 1, y];
+                            else left = gdata[x - 1, y];
+                            if (y == 0) up = gdata[x, y + 1];
+                            else up = gdata[x, y - 1];
+                            if (x == nx - 1) right = gdata[x - 1, y];
+                            else right = gdata[x + 1, y];
+                            if (y == ny - 1) down = gdata[x, y - 1];
+                            else down = gdata[x, y + 1];
 
-                            gdata[x, y] = (1 - omg * kmp) * gold[x,y] + omg * kmp * (left + right + up + down);
+                            yy = (gold[x,y] + kmp * (left + right + up + down)) / (1 + 4 * kmp);
+                            gdata[x, y] = (int)( gdata[x,y] + omg * (yy-gdata[x,y]));
 
-                            rloc = (1 + 4 * (h * h)) * gdata[x, y] - (h * h) * (left + right + up + down) - gold[x, y];
-                            res += rloc * rloc;
+                            
+                        }
+
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++) {
+
+                            if (x == 0) left = gdata[x + 1, y];
+                            else left = gdata[x - 1, y];
+                            if (y == 0) up = gdata[x, y + 1];
+                            else up = gdata[x, y - 1];
+                            if (x == nx - 1) right = gdata[x - 1, y];
+                            else right = gdata[x + 1, y];
+                            if (y == ny - 1) down = gdata[x, y - 1];
+                            else down = gdata[x, y + 1];
+
+                            rloc = (1+4*kmp)* gdata[x, y] - kmp * (left + right + up + down)-gold[x,y];
+            res += rloc * rloc;
                         }
                     res /= gray.Width * gray.Height;
+
                     i++;
                     vypis = "krok " + Convert.ToString(k) + " | iteracia " + Convert.ToString(i) + " : " + Convert.ToString(res);
                     file.WriteLine(vypis);
                     txtlog.Text = vypis;
+                    txtlog.Refresh();
                 }
                 gray = BmpFromData(gdata);
                 gray.Save(fname + "_step" + i + ".bmp");
@@ -553,7 +571,7 @@ namespace ImgP
             tt = (double)numt.Value;
             hh = (double)numh.Value;
 
-            thermalImp(stps, tt, hh,(double)numtol.Value,(double)numomg.Value,(int)numiter.Value);
+            thermalImp(stps, tt, hh,(double)Math.Pow(10,(int)-numtol.Value),(double)numomg.Value,(int)numiter.Value);
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
