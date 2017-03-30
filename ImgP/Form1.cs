@@ -484,6 +484,7 @@ namespace ImgP
             int i;
 
             double[,] gold = new double[gray.Width, gray.Height];
+            double[,] gp = new double[gray.Width, gray.Height];
             double left, right, up, down, kmp = t / (h * h);
             int nx = gray.Width, ny = gray.Height;
             string vypis;            
@@ -493,14 +494,16 @@ namespace ImgP
             for(int k=0; k < steps; k++) {                
             res = 1000;
             i = 0;
-                while (i < iter && res > tol * tol)
+
+                for (int x = 0; x < nx; x++)
+                    for (int y = 0; y < ny; y++)
+                    {
+                        gp[x, y] = gdata[x, y];
+                    }
+
+                while (i < iter && res > tol)
                 {
-                    res = 0;
-                    for (int x = 0; x < nx; x++)
-                        for (int y = 0; y < ny; y++)
-                        {
-                            gold[x, y] = gdata[x, y];
-                        }
+                    
 
                     for (int x = 0; x < nx; x++)
                         for (int y = 0; y < ny; y++)
@@ -514,14 +517,15 @@ namespace ImgP
                             if (y == ny - 1) down = gdata[x, y - 1];
                             else down = gdata[x, y + 1];
 
-                            yy = (gold[x,y] + kmp * (left + right + up + down)) / (1 + 4 * kmp);
-                            gdata[x, y] = (int)( gdata[x,y] + omg * (yy-gdata[x,y]));
-
+                            yy = (gp[x,y] + kmp * (left + right + up + down)) / (1 + 4 * kmp);
+                            gdata[x, y] = ( gdata[x,y] + omg * (yy - gdata[x,y]));
                             
                         }
-
+                    res = 0;
                     for (int x = 0; x < nx; x++)
-                        for (int y = 0; y < ny; y++) {
+                    {
+                        for (int y = 0; y < ny; y++)
+                        {
 
                             if (x == 0) left = gdata[x + 1, y];
                             else left = gdata[x - 1, y];
@@ -532,10 +536,11 @@ namespace ImgP
                             if (y == ny - 1) down = gdata[x, y - 1];
                             else down = gdata[x, y + 1];
 
-                            rloc = (1+4*kmp)* gdata[x, y] - kmp * (left + right + up + down)-gold[x,y];
-            res += rloc * rloc;
+                            rloc = (1 + 4 * kmp) * gdata[x, y] - kmp * (left + up + right + down) - gp[x, y];
+                            res += rloc * rloc;
                         }
-                    res /= gray.Width * gray.Height;
+                    }
+                    res = res / (nx * nx * ny * ny);
 
                     i++;
                     vypis = "krok " + Convert.ToString(k) + " | iteracia " + Convert.ToString(i) + " : " + Convert.ToString(res);
@@ -544,15 +549,10 @@ namespace ImgP
                     txtlog.Refresh();
                 }
                 gray = BmpFromData(gdata);
-                gray.Save(fname + "_step" + i + ".bmp");
+                gray.Save(fname + "_step" + k + ".bmp");
                 img_main.Image = gray;
                 img_main.Refresh();
 
-                for (int x = 0; x < gray.Width; x++)
-                    for (int y = 0; y < gray.Height; y++)
-                    {
-                        gold[x, y] = gdata[x, y];
-                    }
             }
             file.Close();
         }
@@ -570,8 +570,12 @@ namespace ImgP
             stps = (int)numsteps.Value;
             tt = (double)numt.Value;
             hh = (double)numh.Value;
+            thermalImp(stps, tt, hh, Math.Pow(10, (int)-numtol.Value), (double)numomg.Value,(int)numiter.Value);
+        }
 
-            thermalImp(stps, tt, hh,(double)Math.Pow(10,(int)-numtol.Value),(double)numomg.Value,(int)numiter.Value);
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
