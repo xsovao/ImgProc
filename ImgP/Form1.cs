@@ -514,7 +514,7 @@ namespace ImgP
                             if (y == ny - 1) down = gold[x, y - 1];
                             else down = gold[x, y + 1];
 
-                            gdata[x, y] = (1 - omg * kmp) + omg * kmp * (left + right + up + down);
+                            gdata[x, y] = (1 - omg * kmp) * gold[x,y] + omg * kmp * (left + right + up + down);
 
                             rloc = (1 + 4 * (h * h)) * gdata[x, y] - (h * h) * (left + right + up + down) - gold[x, y];
                             res += rloc * rloc;
