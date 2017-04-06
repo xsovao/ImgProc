@@ -806,9 +806,7 @@ namespace ImgP
                 img_main.Image = gray;
                 img_main.Refresh();
 
-            }
-            file.Close();
-        }
+                    }
 
         private void calc_Click(object sender, EventArgs e)
         {
