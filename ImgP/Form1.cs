@@ -88,6 +88,19 @@ namespace ImgP
             return bmp;
         }
 
+        private Bitmap BmpFromData(double[,] data, double scale)
+        {
+            Bitmap bmp = new Bitmap(gray.Width, gray.Height);
+            int v;
+            for (int x = 0; x < gray.Width; x++)
+                for (int y = 0; y < gray.Height; y++)
+                {
+                    v = (int)(Math.Min(255, Math.Max(0, scale * gdata[x, y])));
+                    bmp.SetPixel(x, y, Color.FromArgb(v, v, v));
+                }
+            return bmp;
+        }
+
         private Bitmap grayscale(Bitmap original)
         {
             Color c;
@@ -428,7 +441,7 @@ namespace ImgP
 
         #endregion
 
-        #region NUM SOLVERS
+        #region NUM HEAT FLUX
          void thermalExp(int steps, double t, double h)
         {
             //steps
@@ -493,7 +506,7 @@ namespace ImgP
             for(int k=0; k < steps; k++) {                
             res = 1000;
             i = 0;
-                while (i < iter && res > tol * tol)
+                while (i < iter && res > tol)
                 {
                     res = 0;
                     for (int x = 0; x < nx; x++)
@@ -521,7 +534,8 @@ namespace ImgP
                         }
 
                     for (int x = 0; x < nx; x++)
-                        for (int y = 0; y < ny; y++) {
+                        for (int y = 0; y < ny; y++)
+                        {
 
                             if (x == 0) left = gdata[x + 1, y];
                             else left = gdata[x - 1, y];
@@ -532,8 +546,250 @@ namespace ImgP
                             if (y == ny - 1) down = gdata[x, y - 1];
                             else down = gdata[x, y + 1];
 
-                            rloc = (1+4*kmp)* gdata[x, y] - kmp * (left + right + up + down)-gold[x,y];
-            res += rloc * rloc;
+                            rloc = (1 + 4 * kmp) * gdata[x, y] - kmp * (left + right + up + down) - gold[x, y];
+                            res += rloc * rloc;
+                        }
+                    res = Math.Sqrt(res);
+                    res /= gray.Width * gray.Height;
+
+                    i++;
+                    vypis = "krok " + Convert.ToString(k) + " | iteracia " + Convert.ToString(i) + " : " + Convert.ToString(res);
+                    file.WriteLine(vypis);
+                    txtlog.Text = vypis;
+                    txtlog.Refresh();
+                }
+                gray = BmpFromData(gdata);
+                gray.Save(fname + "_step" + i + ".bmp");
+                img_main.Image = gray;
+                img_main.Refresh();
+
+                for (int x = 0; x < gray.Width; x++)
+                    for (int y = 0; y < gray.Height; y++)
+                    {
+                        gold[x, y] = gdata[x, y];
+                    }
+            }
+            file.Close();
+        }
+
+        void thermalImpQuiet(int steps, double t, double h, double tol, double omg, int iter)
+        {
+            double res, rloc, yy = 0;
+            int i;
+
+            double[,] gold = new double[gray.Width, gray.Height];
+            double left, right, up, down, kmp = t / (h * h);
+            int nx = gray.Width, ny = gray.Height;
+            string vypis;
+
+            System.IO.StreamWriter file = new System.IO.StreamWriter(fname + "_residuals.txt");
+
+            for (int k = 0; k < steps; k++)
+            {
+                res = 1000;
+                i = 0;
+                while (i < iter && res > tol * tol)
+                {
+                    res = 0;
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+                            gold[x, y] = gdata[x, y];
+                        }
+
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+                            if (x == 0) left = gdata[x + 1, y];
+                            else left = gdata[x - 1, y];
+                            if (y == 0) up = gdata[x, y + 1];
+                            else up = gdata[x, y - 1];
+                            if (x == nx - 1) right = gdata[x - 1, y];
+                            else right = gdata[x + 1, y];
+                            if (y == ny - 1) down = gdata[x, y - 1];
+                            else down = gdata[x, y + 1];
+
+                            yy = (gold[x, y] + kmp * (left + right + up + down)) / (1 + 4 * kmp);
+                            gdata[x, y] = (int)(gdata[x, y] + omg * (yy - gdata[x, y]));
+
+
+                        }
+
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+
+                            if (x == 0) left = gdata[x + 1, y];
+                            else left = gdata[x - 1, y];
+                            if (y == 0) up = gdata[x, y + 1];
+                            else up = gdata[x, y - 1];
+                            if (x == nx - 1) right = gdata[x - 1, y];
+                            else right = gdata[x + 1, y];
+                            if (y == ny - 1) down = gdata[x, y - 1];
+                            else down = gdata[x, y + 1];
+
+                            rloc = (1 + 4 * kmp) * gdata[x, y] - kmp * (left + right + up + down) - gold[x, y];
+                            res += rloc * rloc;
+                        }
+                    res /= gray.Width * gray.Height;
+
+                    i++;
+                    vypis = "krok " + Convert.ToString(k) + " | iteracia " + Convert.ToString(i) + " : " + Convert.ToString(res);
+                    file.WriteLine(vypis);
+                    txtlog.Text = vypis;
+                    txtlog.Refresh();
+                }
+                    for (int x = 0; x < gray.Width; x++)
+                    for (int y = 0; y < gray.Height; y++)
+                    {
+                        gold[x, y] = gdata[x, y];
+                    }
+            }        }
+        #endregion
+
+        #region NUM PERONA-MALIK
+        void PMExp(int steps, double t, double h, double k)
+        {
+            //steps
+            //t time step
+            //h space step
+            double[,] gold = new double[gray.Width, gray.Height];
+            int e,w,s,n;
+            double left, right, up, down, kmp = t / (h * h);
+            double gleft, gright, gup, gdown,g1,g2;
+
+            int nx = gray.Width, ny = gray.Height;
+
+
+
+
+
+            for (int x = 0; x < gray.Width; x++)
+                for (int y = 0; y < gray.Height; y++)
+                {
+                    gold[x, y] = gdata[x, y] / 255;
+                }
+
+            for (int i = 0; i < steps; i++)
+            {
+
+                for (int x = 0; x < nx; x++)
+                    for (int y = 0; y < ny; y++)
+                    {
+                        if (x == 0) w = x + 1;
+                        else w = x - 1;
+                        if (y == 0) n = y + 1;
+                        else n = y - 1;
+                        if (x == nx - 1) e = x - 1;
+                        else e = x + 1;
+                        if (y == ny - 1) s = y - 1;
+                        else s = y + 1;
+
+                        left = gold[w, y];
+
+                        g1 = 0.25 * (gold[x, s] + gold[w, s] - gold[x, n] - gold[w, n])/h;
+                        g2 = (gold[x, y] - gold[w, y])/h;
+                        gleft = Math.Sqrt(g1 * g1 + g2 * g2);
+                        gleft = 1 / (1 + k * gleft * gleft);
+
+                        up = gold[x, n];
+
+                        g1 = 0.25 * (gold[w, y] + gold[w, n] - gold[e, y] - gold[e, n])/h;
+                        g2 = (gold[x, y] - gold[x, n])/h;
+                        gup = Math.Sqrt(g1 * g1 + g2 * g2);
+                        gup = 1 / (1 + k * gup * gup);
+
+                        down = gold[x, s];
+
+                        g1 = 0.25 * (gold[w, y] + gold[w, s] - gold[e, y] - gold[e, s])/h;
+                        g2 =  (gold[x, s] - gold[x, y])/h;
+                        gdown = Math.Sqrt(g1 * g1 + g2 * g2);
+                        gdown = 1 / (1 + k * gdown * gdown);
+
+                        right = gold[e, y];
+
+                        g1 = 0.25 * (gold[x, n] + gold[e, n] - gold[x, s] - gold[e, s])/h;
+                        g2 = (gold[x, y] - gold[e, y]);
+                        gright = Math.Sqrt(g1 * g1 + g2 * g2);
+                        gright = 1 / (1 + k * gright * gright);
+
+                        gdata[x, y] = ((1 - 4 * (gleft+gup+gright+gdown)) * gold[x, y] + (gleft*left + gright*right + gup*up + gdown*down));
+
+                       // gdata[x, y] = 1 / 4 * (gleft + gup + gdown + gright);
+                      }
+
+
+                gray = BmpFromData(gdata,255);
+                gray.Save(fname + "_step" + i + ".bmp");
+                img_main.Image = gray;
+                img_main.Refresh();
+
+                for (int x = 0; x < gray.Width; x++)
+                    for (int y = 0; y < gray.Height; y++)
+                    {
+                        gold[x, y] = gdata[x, y];
+                    }
+            }
+        }
+
+        void PMImp(int steps, double t, double h, double tol, double omg, int iter)
+        {
+            double res, rloc, yy = 0;
+            int i;
+
+            double[,] gold = new double[gray.Width, gray.Height];
+            double left, right, up, down, kmp = t / (h * h);
+            int nx = gray.Width, ny = gray.Height;
+            string vypis;
+
+            System.IO.StreamWriter file = new System.IO.StreamWriter(fname + "_residuals.txt");
+
+            for (int k = 0; k < steps; k++)
+            {
+                res = 1000;
+                i = 0;
+                while (i < iter && res > tol * tol)
+                {
+                    res = 0;
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+                            gold[x, y] = gdata[x, y];
+                        }
+
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+                            if (x == 0) left = gdata[x + 1, y];
+                            else left = gdata[x - 1, y];
+                            if (y == 0) up = gdata[x, y + 1];
+                            else up = gdata[x, y - 1];
+                            if (x == nx - 1) right = gdata[x - 1, y];
+                            else right = gdata[x + 1, y];
+                            if (y == ny - 1) down = gdata[x, y - 1];
+                            else down = gdata[x, y + 1];
+
+                            yy = (gold[x, y] + kmp * (left + right + up + down)) / (1 + 4 * kmp);
+                            gdata[x, y] = (int)(gdata[x, y] + omg * (yy - gdata[x, y]));
+
+
+                        }
+
+                    for (int x = 0; x < nx; x++)
+                        for (int y = 0; y < ny; y++)
+                        {
+
+                            if (x == 0) left = gdata[x + 1, y];
+                            else left = gdata[x - 1, y];
+                            if (y == 0) up = gdata[x, y + 1];
+                            else up = gdata[x, y - 1];
+                            if (x == nx - 1) right = gdata[x - 1, y];
+                            else right = gdata[x + 1, y];
+                            if (y == ny - 1) down = gdata[x, y - 1];
+                            else down = gdata[x, y + 1];
+
+                            rloc = (1 + 4 * kmp) * gdata[x, y] - kmp * (left + right + up + down) - gold[x, y];
+                            res += rloc * rloc;
                         }
                     res /= gray.Width * gray.Height;
 
@@ -565,6 +821,7 @@ namespace ImgP
             thermalExp(stps, tt, hh);
         }
         #endregion
+
         private void button1_Click(object sender, EventArgs e)
         {
             stps = (int)numsteps.Value;
@@ -572,6 +829,11 @@ namespace ImgP
             hh = (double)numh.Value;
 
             thermalImp(stps, tt, hh,(double)Math.Pow(10,(int)-numtol.Value),(double)numomg.Value,(int)numiter.Value);
+        }
+
+        private void calcPMexp_Click(object sender, EventArgs e)
+        {
+         PMExp((int)PMsteps.Value, (double)PMtau.Value, (double)PMh.Value, (double)PMk.Value);
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
