@@ -497,6 +497,7 @@ namespace ImgP
             int i;
 
             double[,] gold = new double[gray.Width, gray.Height];
+            double[,] gp = new double[gray.Width, gray.Height];
             double left, right, up, down, kmp = t / (h * h);
             int nx = gray.Width, ny = gray.Height;
             string vypis;            
@@ -791,7 +792,8 @@ namespace ImgP
                             rloc = (1 + 4 * kmp) * gdata[x, y] - kmp * (left + right + up + down) - gold[x, y];
                             res += rloc * rloc;
                         }
-                    res /= gray.Width * gray.Height;
+                    }
+                    res = res / (nx * nx * ny * ny);
 
                     i++;
                     vypis = "krok " + Convert.ToString(k) + " | iteracia " + Convert.ToString(i) + " : " + Convert.ToString(res);
@@ -800,15 +802,10 @@ namespace ImgP
                     txtlog.Refresh();
                 }
                 gray = BmpFromData(gdata);
-                gray.Save(fname + "_step" + i + ".bmp");
+                gray.Save(fname + "_step" + k + ".bmp");
                 img_main.Image = gray;
                 img_main.Refresh();
 
-                for (int x = 0; x < gray.Width; x++)
-                    for (int y = 0; y < gray.Height; y++)
-                    {
-                        gold[x, y] = gdata[x, y];
-                    }
             }
             file.Close();
         }
@@ -827,8 +824,12 @@ namespace ImgP
             stps = (int)numsteps.Value;
             tt = (double)numt.Value;
             hh = (double)numh.Value;
+            thermalImp(stps, tt, hh, Math.Pow(10, (int)-numtol.Value), (double)numomg.Value,(int)numiter.Value);
+        }
 
-            thermalImp(stps, tt, hh,(double)Math.Pow(10,(int)-numtol.Value),(double)numomg.Value,(int)numiter.Value);
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
 
         private void calcPMexp_Click(object sender, EventArgs e)
